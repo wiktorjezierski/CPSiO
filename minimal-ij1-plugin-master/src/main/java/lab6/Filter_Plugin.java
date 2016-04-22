@@ -44,34 +44,34 @@ public class Filter_Plugin implements PlugInFilter {
     }
 
     private void filter() {
-        for (int x = krok; x < obraz.getHeight() - krok - 1; x++) {
-            for (int y = krok; y < obraz.getWidth() - krok - 1; y++) {
+        for (int x = krok; x < obraz.getWidth() - krok - 1; x++) {
+            for (int y = krok; y < obraz.getHeight() - krok - 1; y++) {
                 obraz.putPixel(x, y, wyznaczWartoscPiksela(x, y));
             }
         }
     }
 
     private int wyznaczWartoscPiksela(int x, int y) { // ta suma co na tablicy
-        int sumaWag[] = { 0, 0, 0 };
-        int suma[] = { 0, 0, 0 };
+        double sumaWag[] = { 0, 0, 0 };
+        double suma[] = { 0, 0, 0 };
         int element = 0;
-        ArrayList<Integer> wagiR = wyznaczWagi(x, y, R);
-        ArrayList<Integer> wagiG = wyznaczWagi(x, y, G);
-        ArrayList<Integer> wagiB = wyznaczWagi(x, y, B);
+        ArrayList<Double> wagiR = wyznaczWagi(x, y, R);
+        ArrayList<Double> wagiG = wyznaczWagi(x, y, G);
+        ArrayList<Double> wagiB = wyznaczWagi(x, y, B);
 
         for (int m = x - krok; m <= x + krok; m++) {
             for (int n = y - krok; n <= y + krok; n++) {
                 int piksel = obraz2.getPixel(m, n);
 
-                int wagaR = wagiR.get(element);
+                double wagaR = wagiR.get(element);
                 suma[r] += getR(piksel) * wagaR;
                 sumaWag[r] += wagaR;
 
-                int wagaG = wagiG.get(element);
+                double wagaG = wagiG.get(element);
                 suma[g] += getG(piksel) * wagaG;
                 sumaWag[g] += wagaG;
 
-                int wagaB = wagiB.get(element);
+                double wagaB = wagiB.get(element);
                 suma[b] += getB(piksel) * wagaB;
                 sumaWag[b] += wagaB;
 
@@ -79,40 +79,47 @@ public class Filter_Plugin implements PlugInFilter {
             }
         }
 
-        for (Integer waga : sumaWag) {
+        for (Double waga : sumaWag) {
             if (waga == 0) {
-                waga = 1;
+                waga = 1.0;
             }
         }
-        return ((suma[r] / sumaWag[r]) << R) | ((suma[g] / sumaWag[g]) << G) | (suma[b] / sumaWag[b]);
+
+        int wartoscR = (int) (suma[r] / sumaWag[r]);
+        int wartoscG = (int) (suma[g] / sumaWag[g]);
+        int wartoscB = (int) (suma[b] / sumaWag[b]);
+        return wartoscR << R  | wartoscG << G | wartoscB ;
     }
 
-    private ArrayList<Integer> wyznaczWagi(int x, int y, int tryb) { // funkcja H()
-        ArrayList<Integer> wagi = new ArrayList<Integer>();
-        ArrayList<Integer> gradienty = new ArrayList<Integer>();
-        int sumaGradientow = 0;
+    private ArrayList<Double> wyznaczWagi(int x, int y, int tryb) { // funkcja H()
+        ArrayList<Double> wagi = new ArrayList<Double>();
+        ArrayList<Double> gradienty = new ArrayList<Double>();
+        double sumaGradientow = 0;
 
         for (int m = x - krok; m <= x + krok; m++) {
             for (int n = y - krok; n <= y + krok; n++) {
-                int temp = gradientOdwrotny(m, n, x, y, tryb);
+                double temp = gradientOdwrotny(m, n, x, y, tryb);
                 sumaGradientow += temp;
                 gradienty.add(temp);
             }
         }
 
-        for (Integer gradient : gradienty) {
-            int wartosc = (int) ((0.5 * gradient) / sumaGradientow);
+        for (Double gradient : gradienty) {
+            double wartosc =  ((0.5 * gradient) / sumaGradientow);
             if (wartosc > 0) {
                 wagi.add(wartosc);
             } else {
-                wagi.add(1);
+                wagi.add(1.0);
             }
         }
+
+        int srodkowy = (wagi.size() / 2) + 1;
+        wagi.set(srodkowy, 0.5);
 
         return wagi;
     }
 
-    private int gradientOdwrotny(int xi, int yi, int x, int y, int tryb) { // funkcja
+    private double gradientOdwrotny(int xi, int yi, int x, int y, int tryb) { // funkcja
 
         if (x == xi && y == yi) {
             return 2;
@@ -120,10 +127,10 @@ public class Filter_Plugin implements PlugInFilter {
             int pixel = (obraz2.getPixel(xi, yi) >> tryb) & 0xff;
             int pixelCentralny = (obraz2.getPixel(x, y) >> tryb) & 0xff;
 
-            int mianownik = Math.abs(pixel - pixelCentralny);
+            double mianownik = Math.abs(pixel - pixelCentralny);
 
             if (mianownik == 0) {
-                mianownik++;
+                mianownik = 1;
             }
 
             return 1 / mianownik;
@@ -166,7 +173,7 @@ public class Filter_Plugin implements PlugInFilter {
         new ImageJ();
 
         // open the Clown sample
-        ImagePlus image = IJ.openImage("http://imagej.net/images/lena.jpg");
+        ImagePlus image = IJ.openImage("http://imagej.net/images/leaf.jpg");
         image.show();
 
         // run the plugin
