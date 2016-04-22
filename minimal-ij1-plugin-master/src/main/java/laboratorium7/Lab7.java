@@ -1,6 +1,4 @@
-package lab6;
-
-import java.util.ArrayList;
+package laboratorium7;
 
 import ij.IJ;
 import ij.ImageJ;
@@ -9,8 +7,10 @@ import ij.gui.GenericDialog;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
 
+import java.util.ArrayList;
 
-public class Filter_Plugin implements PlugInFilter {
+
+public class Lab7 implements PlugInFilter {
 
     private final int R = 16;
     private final int G = 8;
@@ -164,7 +164,7 @@ public class Filter_Plugin implements PlugInFilter {
 
     public static void main(String[] args) {
         // set the plugins.dir property to make the plugin appear in the Plugins menu
-               Class<?> clazz = Filter_Plugin.class;
+               Class<?> clazz = Lab7.class;
         String url = clazz.getResource("/" + clazz.getName().replace('.', '/') + ".class").toString();
         String pluginsDir = url.substring("file:".length(), url.length() - clazz.getName().length() - ".class".length());
         System.setProperty("plugins.dir", pluginsDir);
