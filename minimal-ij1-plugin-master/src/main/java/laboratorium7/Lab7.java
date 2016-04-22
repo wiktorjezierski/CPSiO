@@ -7,8 +7,6 @@ import ij.gui.GenericDialog;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
 
-import java.util.ArrayList;
-
 
 public class Lab7 implements PlugInFilter {
 
@@ -16,9 +14,10 @@ public class Lab7 implements PlugInFilter {
     private final int G = 8;
     private final int B = 0;
 
-    private final int r = 0;
-    private final int g = 1;
-    private final int b = 2;
+    private final int klasa1 = 1;
+    private final int klasa2 = 2;
+    private final int klasa3 = 3;
+    private final int klasa4 = 4;
 
     ImagePlus imp;
     ImageProcessor obraz;
@@ -26,6 +25,9 @@ public class Lab7 implements PlugInFilter {
     int rozmiarSasiedztwa; // podajac 3 mamy macierz 3x3
     double rzadFiltracji;  // parametr "r" z .pdf 0 <= r <= 1
     boolean minmax;
+
+    int rozmiarSubOkna [] = {0, 0, 0, 0, 0};    //indeks 0 jest nieuzywany
+    int klasy [][]; //indeks oznacza piksel w macierzy, wartosc numer klasy do ktorej nalezy
 
     public int setup(String arg, ImagePlus imp) {
         this.imp = imp;
@@ -39,8 +41,14 @@ public class Lab7 implements PlugInFilter {
 
     private void prepareImage(ImageProcessor ip) {
         doDialog();
+        klasy = new int[rozmiarSasiedztwa][rozmiarSasiedztwa];
         obraz = ip;
         obraz2 = ip;
+        subOkna();
+    }
+
+    private void subOkna() {
+
     }
 
     private void filter() {
@@ -57,7 +65,7 @@ public class Lab7 implements PlugInFilter {
 
     private void doDialog() {
         GenericDialog gd = new GenericDialog("Przeksztalcenie kontekstowe");
-        gd.addNumericField("szerokosc sasiedztwa", 0, 0);
+        gd.addNumericField("szerokosc sasiedztwa", 9, 0);
         gd.addNumericField("Rząd filtracjinp.: 0.5", 0.5, 0);
         gd.addCheckbox("maksymalna wariancja", true);
         gd.showDialog();
@@ -100,12 +108,3 @@ public class Lab7 implements PlugInFilter {
         IJ.runPlugIn(clazz.getName(), "");
     }
 }
-
-/*
-            	red = (pixel>>16)&0xff;
-            	green = (pixel>>8)&0xff;
-            	blue = pixel&0xff; 
-            	
-            	pixel = (srednia << 16) | (srednia << 8 ) | srednia; 
-*/
-
