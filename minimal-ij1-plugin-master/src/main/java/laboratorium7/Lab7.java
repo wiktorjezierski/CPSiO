@@ -23,8 +23,9 @@ public class Lab7 implements PlugInFilter {
     ImagePlus imp;
     ImageProcessor obraz;
     ImageProcessor obraz2;
-    int rozmiarSasiedztwa = 0; // podajac 3 mamy macierz 3x3
-    int krok;
+    int rozmiarSasiedztwa; // podajac 3 mamy macierz 3x3
+    double rzadFiltracji;  // parametr "r" z .pdf 0 <= r <= 1
+    boolean minmax;
 
     public int setup(String arg, ImagePlus imp) {
         this.imp = imp;
@@ -40,114 +41,33 @@ public class Lab7 implements PlugInFilter {
         doDialog();
         obraz = ip;
         obraz2 = ip;
-        krok = (rozmiarSasiedztwa - 1) / 2;
     }
 
     private void filter() {
-        for (int x = krok; x < obraz.getWidth() - krok - 1; x++) {
-            for (int y = krok; y < obraz.getHeight() - krok - 1; y++) {
+        for (int x = rozmiarSasiedztwa; x < obraz.getWidth() - rozmiarSasiedztwa - 1; x++) {
+            for (int y = rozmiarSasiedztwa; y < obraz.getHeight() - rozmiarSasiedztwa - 1; y++) {
                 obraz.putPixel(x, y, wyznaczWartoscPiksela(x, y));
             }
         }
     }
 
-    private int wyznaczWartoscPiksela(int x, int y) { // ta suma co na tablicy
-        double sumaWag[] = { 0, 0, 0 };
-        double suma[] = { 0, 0, 0 };
-        int element = 0;
-        ArrayList<Double> wagiR = wyznaczWagi(x, y, R);
-        ArrayList<Double> wagiG = wyznaczWagi(x, y, G);
-        ArrayList<Double> wagiB = wyznaczWagi(x, y, B);
-
-        for (int m = x - krok; m <= x + krok; m++) {
-            for (int n = y - krok; n <= y + krok; n++) {
-                int piksel = obraz2.getPixel(m, n);
-
-                double wagaR = wagiR.get(element);
-                suma[r] += getR(piksel) * wagaR;
-                sumaWag[r] += wagaR;
-
-                double wagaG = wagiG.get(element);
-                suma[g] += getG(piksel) * wagaG;
-                sumaWag[g] += wagaG;
-
-                double wagaB = wagiB.get(element);
-                suma[b] += getB(piksel) * wagaB;
-                sumaWag[b] += wagaB;
-
-                element++;
-            }
-        }
-
-        for (Double waga : sumaWag) {
-            if (waga == 0) {
-                waga = 1.0;
-            }
-        }
-
-        int wartoscR = (int) (suma[r] / sumaWag[r]);
-        int wartoscG = (int) (suma[g] / sumaWag[g]);
-        int wartoscB = (int) (suma[b] / sumaWag[b]);
-        return wartoscR << R  | wartoscG << G | wartoscB ;
-    }
-
-    private ArrayList<Double> wyznaczWagi(int x, int y, int tryb) { // funkcja H()
-        ArrayList<Double> wagi = new ArrayList<Double>();
-        ArrayList<Double> gradienty = new ArrayList<Double>();
-        double sumaGradientow = 0;
-
-        for (int m = x - krok; m <= x + krok; m++) {
-            for (int n = y - krok; n <= y + krok; n++) {
-                double temp = gradientOdwrotny(m, n, x, y, tryb);
-                sumaGradientow += temp;
-                gradienty.add(temp);
-            }
-        }
-
-        for (Double gradient : gradienty) {
-            double wartosc =  ((0.5 * gradient) / sumaGradientow);
-            if (wartosc > 0) {
-                wagi.add(wartosc);
-            } else {
-                wagi.add(1.0);
-            }
-        }
-
-        int srodkowy = (wagi.size() / 2) + 1;
-        wagi.set(srodkowy, 0.5);
-
-        return wagi;
-    }
-
-    private double gradientOdwrotny(int xi, int yi, int x, int y, int tryb) { // funkcja
-
-        if (x == xi && y == yi) {
-            return 2;
-        } else {
-            int pixel = (obraz2.getPixel(xi, yi) >> tryb) & 0xff;
-            int pixelCentralny = (obraz2.getPixel(x, y) >> tryb) & 0xff;
-
-            double mianownik = Math.abs(pixel - pixelCentralny);
-
-            if (mianownik == 0) {
-                mianownik = 1;
-            }
-
-            return 1 / mianownik;
-        }
+    private int wyznaczWartoscPiksela(int x, int y) {
+        return 0;
     }
 
     private void doDialog() {
         GenericDialog gd = new GenericDialog("Przeksztalcenie kontekstowe");
         gd.addNumericField("szerokosc sasiedztwa", 0, 0);
+        gd.addNumericField("Rząd filtracjinp.: 0.5", 0.5, 0);
+        gd.addCheckbox("maksymalna wariancja", true);
         gd.showDialog();
-        rozmiarSasiedztwa = (int) gd.getNextNumber();
-    }
 
-    private void checkValue(String param) {
-        GenericDialog g = new GenericDialog("Przeksztalcenie kontekstowe");
-        g.addMessage(param);
-        g.showDialog();
+        rozmiarSasiedztwa = (int) gd.getNextNumber();
+        rzadFiltracji = gd.getNextNumber();
+        minmax = gd.getNextBoolean();
+        if (rzadFiltracji > 1 || rzadFiltracji < 0){
+            throw new NumberFormatException("second value is not correct, must be <0,1>");
+        }
     }
 
     private int getR(int pixel) {
