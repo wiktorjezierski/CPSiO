@@ -8,7 +8,6 @@ import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
 
 import java.awt.*;
-import java.awt.geom.Arc2D;
 
 
 public class Lab7 implements PlugInFilter {
@@ -25,14 +24,16 @@ public class Lab7 implements PlugInFilter {
     ImagePlus imp;
     ImageProcessor obraz;
     ImageProcessor obraz2;
+
     int rozmiarSasiedztwa; // podajac 3 mamy macierz 3x3
     double rzadFiltracji;  // parametr "r" z .pdf 0 <= r <= 1
     boolean minmax;
+    int promien;
 
     Point punktSrodkowy;
 
-    int rozmiarSubOkna [] = {0, 0, 0, 0, 0};    //indeks 0 jest nieuzywany
-    int klasy [][]; //indeks oznacza piksel w macierzy, wartosc numer klasy do ktorej nalezy
+    int rozmiarSubOkna[] = {0, 0, 0, 0, 0};    //indeks 0 jest nieuzywany
+    int klasy[][]; //indeks oznacza piksel w macierzy, wartosc numer klasy do ktorej nalezy
 
     public int setup(String arg, ImagePlus imp) {
         this.imp = imp;
@@ -46,7 +47,8 @@ public class Lab7 implements PlugInFilter {
 
     private void prepareImage(ImageProcessor ip) {
         doDialog();
-        punktSrodkowy = new Point((int)rozmiarSasiedztwa / 2, (int)rozmiarSasiedztwa / 2);
+        promien = (int) rozmiarSasiedztwa / 2;
+        punktSrodkowy = new Point(promien, promien);
         klasy = new int[rozmiarSasiedztwa][rozmiarSasiedztwa];
         obraz = ip;
         obraz2 = ip;
@@ -55,50 +57,48 @@ public class Lab7 implements PlugInFilter {
     }
 
     private void subOkna() {
-        for (int y = 0, j=rozmiarSasiedztwa-1; y < rozmiarSasiedztwa; y++, j--) {
-            for (int x = 0; x < rozmiarSasiedztwa; x++) {
-                if(x == y && x == punktSrodkowy.getX() && y == punktSrodkowy.getY()){
+        for (int x = 0, j = rozmiarSasiedztwa - 1; x < rozmiarSasiedztwa; x++, j--) {
+            for (int y = 0; y < rozmiarSasiedztwa; y++) {
+                if (x == y && x == punktSrodkowy.getX() && y == punktSrodkowy.getY()) {
                     klasy[x][y] = 0;
                 } else {
-                    klasy[x][y] = odlegloscOdProstej(x, j);
+                    klasy[x][y] = odlegloscPunktuOdProstej(y, j);
                 }
             }
         }
     }
 
-    private int odlegloscOdProstej(int x, int y) {
+    private int odlegloscPunktuOdProstej(int x, int y) {
         double najkrotszaOdleglosc = Double.MAX_VALUE;
         int klasa = 0;
         x = (int) (x - punktSrodkowy.getX());
         y = (int) (y - punktSrodkowy.getY());
 
         double odleglosc = Math.abs(y);
-        if(najkrotszaOdleglosc > odleglosc){
+        if (najkrotszaOdleglosc > odleglosc) {
             najkrotszaOdleglosc = odleglosc;
             klasa = klasa1;
-            rozmiarSubOkna[klasa1]++;
         }
 
-        odleglosc = Math.abs((-1)*x + y) / Math.sqrt(2.0);
-        if(najkrotszaOdleglosc > odleglosc){
+        odleglosc = Math.abs((-1) * x + y) / Math.sqrt(2.0);
+        if (najkrotszaOdleglosc > odleglosc) {
             najkrotszaOdleglosc = odleglosc;
             klasa = klasa2;
-            rozmiarSubOkna[klasa2]++;
         }
 
         odleglosc = Math.abs(x);
-        if(najkrotszaOdleglosc > odleglosc){
+        if (najkrotszaOdleglosc > odleglosc) {
             najkrotszaOdleglosc = odleglosc;
             klasa = klasa3;
-            rozmiarSubOkna[klasa3]++;
         }
 
-        odleglosc = Math.abs(x + y ) / Math.sqrt(2.0);
-        if(najkrotszaOdleglosc > odleglosc){
+        odleglosc = Math.abs(x + y) / Math.sqrt(2.0);
+        if (najkrotszaOdleglosc > odleglosc) {
             najkrotszaOdleglosc = odleglosc;
             klasa = klasa4;
-            rozmiarSubOkna[klasa4]++;
         }
+
+        rozmiarSubOkna[klasa]++;
 
         return klasa;
     }
@@ -112,6 +112,7 @@ public class Lab7 implements PlugInFilter {
     }
 
     private int wyznaczWartoscPiksela(int x, int y) {
+
         return 0;
     }
 
@@ -125,7 +126,7 @@ public class Lab7 implements PlugInFilter {
         rozmiarSasiedztwa = (int) gd.getNextNumber();
         rzadFiltracji = gd.getNextNumber();
         minmax = gd.getNextBoolean();
-        if (rzadFiltracji > 1 || rzadFiltracji < 0){
+        if (!(rzadFiltracji < 1 && rzadFiltracji > 0)) {
             throw new NumberFormatException("second value is not correct, must be <0,1>");
         }
     }
@@ -143,9 +144,10 @@ public class Lab7 implements PlugInFilter {
     }
 
     private void wyswietl() {
-        for (int i = 0; i < klasy.length; i++) {
-            for (int j = 0; j < klasy.length; j++) {
-                System.out.print(klasy[j][i] + " ");
+        for (int x = 0; x < klasy.length; x++) {
+            for (int y = 0; y < klasy.length; y++) {
+
+                System.out.print(klasy[x][y] + " ");
             }
             System.out.println(" ");
         }
@@ -153,7 +155,7 @@ public class Lab7 implements PlugInFilter {
 
     public static void main(String[] args) {
         // set the plugins.dir property to make the plugin appear in the Plugins menu
-               Class<?> clazz = Lab7.class;
+        Class<?> clazz = Lab7.class;
         String url = clazz.getResource("/" + clazz.getName().replace('.', '/') + ".class").toString();
         String pluginsDir = url.substring("file:".length(), url.length() - clazz.getName().length() - ".class".length());
         System.setProperty("plugins.dir", pluginsDir);
