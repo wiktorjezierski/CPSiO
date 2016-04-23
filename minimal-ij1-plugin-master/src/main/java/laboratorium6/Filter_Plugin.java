@@ -39,7 +39,7 @@ public class Filter_Plugin implements PlugInFilter {
     private void prepareImage(ImageProcessor ip) {
         doDialog();
         obraz = ip;
-        obraz2 = ip;
+        obraz2 = ip.duplicate();
         krok = (rozmiarSasiedztwa - 1) / 2;
     }
 
@@ -55,8 +55,8 @@ public class Filter_Plugin implements PlugInFilter {
         double sumaWag[] = { 0, 0, 0 };
         double suma[] = { 0, 0, 0 };
         int element = 0;
-        ArrayList<Double> wagiR = wyznaczWagi(x, y, 2);
-        ArrayList<Double> wagiG = wyznaczWagi(x, y, 1);
+        ArrayList<Double> wagiR = wyznaczWagi(x, y, R);
+        ArrayList<Double> wagiG = wyznaczWagi(x, y, G);
         ArrayList<Double> wagiB = wyznaczWagi(x, y, B);
 
         for (int m = x - krok; m <= x + krok; m++) {

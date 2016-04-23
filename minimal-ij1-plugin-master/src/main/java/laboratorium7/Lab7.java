@@ -56,7 +56,7 @@ public class Lab7 implements PlugInFilter {
         punktSrodkowy = new Point(promien, promien);
         klasy = new int[rozmiarSasiedztwa][rozmiarSasiedztwa];
         obraz = ip;
-        obraz2 = ip;
+        obraz2 = ip.duplicate();
         subOkna();
         wyznaczParametrR();
         wyswietl();
@@ -118,7 +118,13 @@ public class Lab7 implements PlugInFilter {
     private void filter() {
         for (int x = promien; x < obraz.getWidth() - promien - 1; x++) {
             for (int y = promien; y < obraz.getHeight() - promien - 1; y++) {
+                /*int xxx = obraz.getPixel(x,y);
+                int yyy = obraz2.getPixel(x,y);*/
                 obraz.putPixel(x, y, wyznaczWartoscPiksela(x, y));
+
+                /*xxx = obraz.getPixel(x,y);
+                yyy = obraz2.getPixel(x,y);
+                int b = 5;*/
             }
         }
     }
@@ -136,11 +142,11 @@ public class Lab7 implements PlugInFilter {
                     klasa = minWariancja(wariancja);
                 }
 
-                wartosc = zlozPiksel((int) sredniaJasnosc[3*klasa - 3], (int) sredniaJasnosc[3*klasa -2], (int) sredniaJasnosc[3*klasa- 1]);
+//                wartosc = zlozPiksel((int) sredniaJasnosc[3*klasa - 3], (int) sredniaJasnosc[3*klasa -2], (int) sredniaJasnosc[3*klasa- 1]);
            // }
         //}
-         wybierzPikselDoZastapienia(x, y, klasa);
-        return wartosc;
+         return wybierzPikselDoZastapienia(x, y, klasa);
+//        return wartosc;
     }
 
     /*Wybierasz subokno o najmniejszej lub największej wariancji, sortujesz wartości pikseli rosnąco, a R to numer piksela,
