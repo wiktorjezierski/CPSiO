@@ -158,8 +158,8 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
         ArrayList<Integer> pikseleG = new ArrayList<Integer>();
         ArrayList<Integer> pikseleB = new ArrayList<Integer>();
 
-        for (int i = x - promien, xi = 0; i < x + promien; i++, xi++) {
-            for (int j = y - promien, yi = 0; j < y + promien; j++, yi++) {
+        for (int i = x - promien, xi = 0; i <= x + promien; i++, xi++) {
+            for (int j = y - promien, yi = 0; j <= y + promien; j++, yi++) {
 
                 if(klasy[xi][yi] == klasa){
                     int piksel = obraz2.getPixel(i,j);
@@ -170,11 +170,20 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
             }
         }
 
+        ///
+        /*ArrayList<Integer> zlozone = new ArrayList<Integer>();
+        for (int i = 0; i < pikseleR.size(); i++) {
+            zlozone.add(zlozPiksel(pikseleR.get(i), pikseleG.get(i), pikseleB.get(i)));
+        }
+        zlozone = sortuj(zlozone);*/
+        ///
+
         pikseleR = sortuj(pikseleR);
         pikseleG = sortuj(pikseleG);
         pikseleB = sortuj(pikseleB);
 
-        return zlozPiksel(pikseleR.get(parametrR[klasa]), pikseleG.get(parametrR[klasa]), pikseleB.get(parametrR[klasa]));
+        return zlozPiksel(pikseleR.get(parametrR[klasa] - 1), pikseleG.get(parametrR[klasa] - 1), pikseleB.get(parametrR[klasa] - 1));
+//        return zlozone.get(parametrR[klasa]);
     }
 
     private double[] wyznaczJasnosc(int x, int y) {       //zwracana wartosc RGB RGB RGB RGB  odpowiednio dla klas 1 2 3 4
@@ -342,7 +351,7 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
         new ImageJ();
 
         // open the Clown sample
-        ImagePlus image = IJ.openImage("http://imagej.net/images/leaf.jpg");
+        ImagePlus image = IJ.openImage("http://imagej.net/images/lena.jpg");
         image.show();
 
         // run the plugin
