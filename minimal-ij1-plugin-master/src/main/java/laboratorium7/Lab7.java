@@ -8,7 +8,6 @@ import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
 
 import java.awt.*;
-import java.awt.geom.Arc2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,8 +34,6 @@ public class Lab7 implements PlugInFilter {
     int promien;
     int parametrR[] = {0, 0, 0, 0, 0};
 
-    Point punktSrodkowy;
-
     int rozmiarSubOkna[] = {0, 0, 0, 0, 0};    //indeks 0 jest nieuzywany
     int klasy[][]; //indeks oznacza piksel w macierzy, wartosc numer klasy do ktorej nalezy
 
@@ -53,7 +50,6 @@ public class Lab7 implements PlugInFilter {
     private void prepareImage(ImageProcessor ip) {
         doDialog();
         promien = (int) rozmiarSasiedztwa / 2;
-        punktSrodkowy = new Point(promien, promien);
         klasy = new int[rozmiarSasiedztwa][rozmiarSasiedztwa];
         obraz = ip;
         obraz2 = ip.duplicate();
@@ -69,18 +65,19 @@ public class Lab7 implements PlugInFilter {
     }
 
     private void subOkna() {
+        Point punktSrodkowy = new Point(promien, promien);
         for (int x = 0, j = rozmiarSasiedztwa - 1; x < rozmiarSasiedztwa; x++, j--) {
             for (int y = 0; y < rozmiarSasiedztwa; y++) {
                 if (x == y && x == punktSrodkowy.getX() && y == punktSrodkowy.getY()) {
                     klasy[x][y] = 0;
                 } else {
-                    klasy[x][y] = odlegloscPunktuOdProstej(y, j);
+                    klasy[x][y] = odlegloscPunktuOdProstej(y, j, punktSrodkowy);
                 }
             }
         }
     }
 
-    private int odlegloscPunktuOdProstej(int x, int y) {
+    private int odlegloscPunktuOdProstej(int x, int y, Point punktSrodkowy) {
         double najkrotszaOdleglosc = Double.MAX_VALUE;
         int klasa = 0;
         x = (int) (x - punktSrodkowy.getX());
@@ -190,8 +187,8 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
         double jasnosci[] = new double[12];
         double sumaJasnosci[] = new double[12];
 
-        for (int i = x - promien, xi = 0; i < x + promien; i++, xi++) {
-            for (int j = y - promien, yi = 0; j < y + promien; j++, yi++) {
+        for (int i = x - promien, xi = 0; i <= x + promien; i++, xi++) {
+            for (int j = y - promien, yi = 0; j <= y + promien; j++, yi++) {
                 int piksel = obraz2.getPixel(i, j);
                 int R = getR(piksel);
                 int G = getG(piksel);
@@ -225,8 +222,8 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
         double wariancja[] = new double[12];
         double sumaWariancji[] = new double[12];
 
-        for (int i = x - promien, xi = 0; i < x + promien; i++, xi++) {
-            for (int j = y - promien, yi = 0; j < y + promien; j++, yi++) {
+        for (int i = x - promien, xi = 0; i <= x + promien; i++, xi++) {
+            for (int j = y - promien, yi = 0; j <= y + promien; j++, yi++) {
                 int piksel = obraz2.getPixel(i, j);
                 int R = getR(piksel);
                 int G = getG(piksel);
