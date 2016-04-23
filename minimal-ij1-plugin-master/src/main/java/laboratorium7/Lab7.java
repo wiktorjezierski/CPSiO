@@ -112,8 +112,120 @@ public class Lab7 implements PlugInFilter {
     }
 
     private int wyznaczWartoscPiksela(int x, int y) {
+        int wartosc = 0;
+        int klasa = 0;
+        for (int i = x - promien; i < x + promien; i++) {
+            for (int j = y - promien; j < y + promien; j++) {
+                double jasnosc[] = wyznaczJasnosc(i, j);
+                double wariancja[] = wyznaczWariancje(i, j, jasnosc);
+                if (minmax) {       //true = maksymalna wariancja
+                    klasa = maxWariancja(wariancja);
+                } else {            // minimalna wariancja
+                    klasa = minWariancja(wariancja);
+                }
 
-        return 0;
+                wartosc = zlozPiksel((int)jasnosc[klasa], (int)jasnosc[klasa + 1], (int)jasnosc[klasa + 2]);
+            }
+        }
+        return wartosc;
+    }
+
+    private double[] wyznaczJasnosc(int x, int y) {       //zwracana wartosc RGB RGB RGB RGB  odpowiednio dla klas 1 2 3 4
+        double jasnosci[] = new double[12];
+        double sumaJasnosci[] = new double[12];
+
+        for (int i = x - promien, xi = 0; i < x + promien; i++, xi++) {
+            for (int j = y - promien, yi = 0; j < y + promien; j++, yi++) {
+                int piksel = obraz2.getPixel(i, j);
+                int R = getR(piksel);
+                int G = getG(piksel);
+                int B = getB(piksel);
+
+                int numerKlasy = klasy[xi][yi];
+                if (numerKlasy > 0) {
+                    sumaJasnosci[(numerKlasy - 1) * 3] += R;
+                    sumaJasnosci[(numerKlasy - 1) * 3 + 1] += G;
+                    sumaJasnosci[(numerKlasy - 1) * 3 + 2] += B;
+                }
+            }
+        }
+
+        for (int i = 0; i < 3; i++) {
+            jasnosci[i] = sumaJasnosci[i] / rozmiarSubOkna[klasa1];
+        }
+        for (int i = 3; i < 6; i++) {
+            jasnosci[i] = sumaJasnosci[i] / rozmiarSubOkna[klasa2];
+        }
+        for (int i = 6; i < 9; i++) {
+            jasnosci[i] = sumaJasnosci[i] / rozmiarSubOkna[klasa3];
+        }
+        for (int i = 9; i < 12; i++) {
+            jasnosci[i] = sumaJasnosci[i] / rozmiarSubOkna[klasa4];
+        }
+        return jasnosci;
+    }
+
+    private double[] wyznaczWariancje(int x, int y, double jasnosci[]) {
+        double wariancja[] = new double[12];
+        double sumaWariancji[] = new double[12];
+
+        for (int i = x - promien, xi = 0; i < x + promien; i++, xi++) {
+            for (int j = y - promien, yi = 0; j < y + promien; j++, yi++) {
+                int piksel = obraz2.getPixel(i, j);
+                int R = getR(piksel);
+                int G = getG(piksel);
+                int B = getB(piksel);
+
+                int numerKlasy = klasy[xi][yi];
+                if (numerKlasy > 0) {
+                    int index = (numerKlasy - 1) * 3;
+                    sumaWariancji[index] += Math.abs(R - jasnosci[index]);
+                    sumaWariancji[index + 1] += Math.abs(G - jasnosci[index + 1]);
+                    sumaWariancji[index + 2] += Math.abs(B - jasnosci[index + 2]);
+                }
+            }
+        }
+
+        for (int i = 0; i < 3; i++) {
+            wariancja[i] = sumaWariancji[i] / rozmiarSubOkna[klasa1];
+        }
+        for (int i = 3; i < 6; i++) {
+            wariancja[i] = sumaWariancji[i] / rozmiarSubOkna[klasa2];
+        }
+        for (int i = 6; i < 9; i++) {
+            wariancja[i] = sumaWariancji[i] / rozmiarSubOkna[klasa3];
+        }
+        for (int i = 9; i < 12; i++) {
+            wariancja[i] = sumaWariancji[i] / rozmiarSubOkna[klasa4];
+        }
+
+        return wariancja;
+    }
+
+    private int minWariancja(double wariancja[]) {
+        double minWartosc = Double.MAX_VALUE;
+        int klasa = 0;
+        for (int i = 0, j = 1; i < wariancja.length; i+=3, j++) {
+            double temp = wariancja[i] + wariancja[i+1] + wariancja[i+2];
+            if(temp < minWartosc){
+                minWartosc = temp;
+                klasa = j;
+            }
+        }
+        return klasa;
+    }
+
+    private int maxWariancja(double wariancja[]) {
+        double maWartosc = Double.MIN_VALUE;
+        int klasa = 0;
+        for (int i = 0, j = 1; i < wariancja.length; i+=3, j++) {
+            double temp = wariancja[i] + wariancja[i+1] + wariancja[i+2];
+            if(temp > maWartosc){
+                maWartosc = temp;
+                klasa = j;
+            }
+        }
+        return klasa;
     }
 
     private void doDialog() {
@@ -143,6 +255,14 @@ public class Lab7 implements PlugInFilter {
         return (pixel >> B) & 0xff;
     }
 
+    private int getColor(int pixel, int tryb) {
+        return (pixel >> tryb) & 0xff;
+    }
+
+    private int zlozPiksel(int r, int g, int b) {
+        return r << R | g << G | b;
+    }
+
     private void wyswietl() {
         for (int x = 0; x < klasy.length; x++) {
             for (int y = 0; y < klasy.length; y++) {
@@ -164,7 +284,7 @@ public class Lab7 implements PlugInFilter {
         new ImageJ();
 
         // open the Clown sample
-        ImagePlus image = IJ.openImage("http://imagej.net/images/leaf.jpg");
+        ImagePlus image = IJ.openImage("http://imagej.net/images/lena.jpg");
         image.show();
 
         // run the plugin
