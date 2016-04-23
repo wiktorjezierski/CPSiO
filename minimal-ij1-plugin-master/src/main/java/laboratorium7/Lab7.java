@@ -8,6 +8,10 @@ import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
 
 import java.awt.*;
+import java.awt.geom.Arc2D;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class Lab7 implements PlugInFilter {
@@ -29,6 +33,7 @@ public class Lab7 implements PlugInFilter {
     double rzadFiltracji;  // parametr "r" z .pdf 0 <= r <= 1
     boolean minmax;
     int promien;
+    int parametrR[] = {0, 0, 0, 0, 0};
 
     Point punktSrodkowy;
 
@@ -53,7 +58,14 @@ public class Lab7 implements PlugInFilter {
         obraz = ip;
         obraz2 = ip;
         subOkna();
+        wyznaczParametrR();
         wyswietl();
+    }
+
+    private void wyznaczParametrR(){
+        for (int i = 1; i < 5; i++) {
+            parametrR[i] = 1 + (int) (rzadFiltracji * rozmiarSubOkna[i] - 1);
+        }
     }
 
     private void subOkna() {
@@ -104,8 +116,8 @@ public class Lab7 implements PlugInFilter {
     }
 
     private void filter() {
-        for (int x = rozmiarSasiedztwa; x < obraz.getWidth() - rozmiarSasiedztwa - 1; x++) {
-            for (int y = rozmiarSasiedztwa; y < obraz.getHeight() - rozmiarSasiedztwa - 1; y++) {
+        for (int x = promien; x < obraz.getWidth() - promien - 1; x++) {
+            for (int y = promien; y < obraz.getHeight() - promien - 1; y++) {
                 obraz.putPixel(x, y, wyznaczWartoscPiksela(x, y));
             }
         }
@@ -114,20 +126,49 @@ public class Lab7 implements PlugInFilter {
     private int wyznaczWartoscPiksela(int x, int y) {
         int wartosc = 0;
         int klasa = 0;
-        for (int i = x - promien; i < x + promien; i++) {
-            for (int j = y - promien; j < y + promien; j++) {
-                double jasnosc[] = wyznaczJasnosc(i, j);
-                double wariancja[] = wyznaczWariancje(i, j, jasnosc);
+        //for (int i = x - promien; i < x + promien; i++) {
+           // for (int j = y - promien; j < y + promien; j++) {
+                double sredniaJasnosc[] = wyznaczJasnosc(x, y);
+                double wariancja[] = wyznaczWariancje(x, y, sredniaJasnosc);
                 if (minmax) {       //true = maksymalna wariancja
                     klasa = maxWariancja(wariancja);
                 } else {            // minimalna wariancja
                     klasa = minWariancja(wariancja);
                 }
 
-                wartosc = zlozPiksel((int)jasnosc[klasa], (int)jasnosc[klasa + 1], (int)jasnosc[klasa + 2]);
+                wartosc = zlozPiksel((int) sredniaJasnosc[3*klasa - 3], (int) sredniaJasnosc[3*klasa -2], (int) sredniaJasnosc[3*klasa- 1]);
+           // }
+        //}
+         wybierzPikselDoZastapienia(x, y, klasa);
+        return wartosc;
+    }
+
+    /*Wybierasz subokno o najmniejszej lub największej wariancji, sortujesz wartości pikseli rosnąco, a R to numer piksela,
+którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
+
+    private int wybierzPikselDoZastapienia(int x, int y, int klasa){
+
+        ArrayList<Integer> pikseleR = new ArrayList<Integer>();
+        ArrayList<Integer> pikseleG = new ArrayList<Integer>();
+        ArrayList<Integer> pikseleB = new ArrayList<Integer>();
+
+        for (int i = x - promien, xi = 0; i < x + promien; i++, xi++) {
+            for (int j = y - promien, yi = 0; j < y + promien; j++, yi++) {
+
+                if(klasy[xi][yi] == klasa){
+                    int piksel = obraz2.getPixel(i,j);
+                    pikseleR.add(getR(piksel));
+                    pikseleG.add(getG(piksel));
+                    pikseleB.add(getB(piksel));
+                }
             }
         }
-        return wartosc;
+
+        pikseleR = sortuj(pikseleR);
+        pikseleG = sortuj(pikseleG);
+        pikseleB = sortuj(pikseleB);
+
+        return zlozPiksel(pikseleR.get(parametrR[klasa]), pikseleG.get(parametrR[klasa]), pikseleB.get(parametrR[klasa]));
     }
 
     private double[] wyznaczJasnosc(int x, int y) {       //zwracana wartosc RGB RGB RGB RGB  odpowiednio dla klas 1 2 3 4
@@ -205,9 +246,9 @@ public class Lab7 implements PlugInFilter {
     private int minWariancja(double wariancja[]) {
         double minWartosc = Double.MAX_VALUE;
         int klasa = 0;
-        for (int i = 0, j = 1; i < wariancja.length; i+=3, j++) {
-            double temp = wariancja[i] + wariancja[i+1] + wariancja[i+2];
-            if(temp < minWartosc){
+        for (int i = 0, j = 1; i < wariancja.length; i += 3, j++) {
+            double temp = wariancja[i] + wariancja[i + 1] + wariancja[i + 2];
+            if (temp < minWartosc) {
                 minWartosc = temp;
                 klasa = j;
             }
@@ -218,9 +259,9 @@ public class Lab7 implements PlugInFilter {
     private int maxWariancja(double wariancja[]) {
         double maWartosc = Double.MIN_VALUE;
         int klasa = 0;
-        for (int i = 0, j = 1; i < wariancja.length; i+=3, j++) {
-            double temp = wariancja[i] + wariancja[i+1] + wariancja[i+2];
-            if(temp > maWartosc){
+        for (int i = 0, j = 1; i < wariancja.length; i += 3, j++) {
+            double temp = wariancja[i] + wariancja[i + 1] + wariancja[i + 2];
+            if (temp > maWartosc) {
                 maWartosc = temp;
                 klasa = j;
             }
@@ -228,19 +269,15 @@ public class Lab7 implements PlugInFilter {
         return klasa;
     }
 
-    private void doDialog() {
-        GenericDialog gd = new GenericDialog("Przeksztalcenie kontekstowe");
-        gd.addNumericField("szerokosc sasiedztwa", 9, 0);
-        gd.addNumericField("Rząd filtracjinp.: 0.5", 0.5, 0);
-        gd.addCheckbox("maksymalna wariancja", true);
-        gd.showDialog();
+    private ArrayList sortuj(ArrayList list) {
+        Collections.sort(list, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer liczba1, Integer liczba2) {
+                return liczba1.compareTo(liczba2);
+            }
+        });
 
-        rozmiarSasiedztwa = (int) gd.getNextNumber();
-        rzadFiltracji = gd.getNextNumber();
-        minmax = gd.getNextBoolean();
-        if (!(rzadFiltracji <= 1 && rzadFiltracji > 0)) {
-            throw new NumberFormatException("second value is not correct, must be <0,1>");
-        }
+        return list;
     }
 
     private int getR(int pixel) {
@@ -273,6 +310,21 @@ public class Lab7 implements PlugInFilter {
         }
     }
 
+    private void doDialog() {
+        GenericDialog gd = new GenericDialog("Przeksztalcenie kontekstowe");
+        gd.addNumericField("szerokosc sasiedztwa", 9, 0);
+        gd.addNumericField("Rząd filtracjinp.: 0.5", 0.5, 0);
+        gd.addCheckbox("maksymalna wariancja", true);
+        gd.showDialog();
+
+        rozmiarSasiedztwa = (int) gd.getNextNumber();
+        rzadFiltracji = gd.getNextNumber();
+        minmax = gd.getNextBoolean();
+        if (!(rzadFiltracji <= 1 && rzadFiltracji > 0)) {
+            throw new NumberFormatException("second value is not correct, must be <0,1>");
+        }
+    }
+
     public static void main(String[] args) {
         // set the plugins.dir property to make the plugin appear in the Plugins menu
         Class<?> clazz = Lab7.class;
@@ -291,3 +343,4 @@ public class Lab7 implements PlugInFilter {
         IJ.runPlugIn(clazz.getName(), "");
     }
 }
+
