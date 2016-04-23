@@ -55,8 +55,8 @@ public class Filter_Plugin implements PlugInFilter {
         double sumaWag[] = { 0, 0, 0 };
         double suma[] = { 0, 0, 0 };
         int element = 0;
-        ArrayList<Double> wagiR = wyznaczWagi(x, y, R);
-        ArrayList<Double> wagiG = wyznaczWagi(x, y, G);
+        ArrayList<Double> wagiR = wyznaczWagi(x, y, 2);
+        ArrayList<Double> wagiG = wyznaczWagi(x, y, 1);
         ArrayList<Double> wagiB = wyznaczWagi(x, y, B);
 
         for (int m = x - krok; m <= x + krok; m++) {
@@ -78,7 +78,6 @@ public class Filter_Plugin implements PlugInFilter {
                 element++;
             }
         }
-
         for (Double waga : sumaWag) {
             if (waga == 0) {
                 waga = 1.0;
@@ -109,12 +108,12 @@ public class Filter_Plugin implements PlugInFilter {
             if (wartosc > 0) {
                 wagi.add(wartosc);
             } else {
-                wagi.add(1.0);
+                wagi.add(2.0);
             }
         }
 
-        int srodkowy = (wagi.size() / 2) + 1;
-        wagi.set(srodkowy, 0.5);
+        /*int srodkowy = (wagi.size() / 2) + 1;
+        wagi.set(srodkowy, 0.5);*/
 
         return wagi;
     }
@@ -130,7 +129,7 @@ public class Filter_Plugin implements PlugInFilter {
             double mianownik = Math.abs(pixel - pixelCentralny);
 
             if (mianownik == 0) {
-                mianownik = 1;
+                mianownik++;
             }
 
             return 1 / mianownik;

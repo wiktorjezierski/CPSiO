@@ -238,7 +238,7 @@ public class Lab7 implements PlugInFilter {
         rozmiarSasiedztwa = (int) gd.getNextNumber();
         rzadFiltracji = gd.getNextNumber();
         minmax = gd.getNextBoolean();
-        if (!(rzadFiltracji < 1 && rzadFiltracji > 0)) {
+        if (!(rzadFiltracji <= 1 && rzadFiltracji > 0)) {
             throw new NumberFormatException("second value is not correct, must be <0,1>");
         }
     }
@@ -284,7 +284,7 @@ public class Lab7 implements PlugInFilter {
         new ImageJ();
 
         // open the Clown sample
-        ImagePlus image = IJ.openImage("http://imagej.net/images/lena.jpg");
+        ImagePlus image = IJ.openImage("http://imagej.net/images/leaf.jpg");
         image.show();
 
         // run the plugin
