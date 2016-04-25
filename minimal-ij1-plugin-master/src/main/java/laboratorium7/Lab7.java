@@ -281,14 +281,8 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
         return klasa;
     }
 
-    private ArrayList sortuj(ArrayList list) {
-        Collections.sort(list, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer liczba1, Integer liczba2) {
-                return liczba1.compareTo(liczba2);
-            }
-        });
-
+    private ArrayList sortuj(ArrayList<Integer> list) {
+        Collections.sort(list, (liczba1, liczba2) -> liczba1.compareTo(liczba2));
         return list;
     }
 
