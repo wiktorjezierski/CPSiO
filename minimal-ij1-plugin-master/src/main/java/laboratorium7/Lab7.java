@@ -58,7 +58,7 @@ public class Lab7 implements PlugInFilter {
         wyswietl();
     }
 
-    private void wyznaczParametrR(){
+    private void wyznaczParametrR() {
         for (int i = 1; i < 5; i++) {
             parametrR[i] = 1 + (int) (rzadFiltracji * rozmiarSubOkna[i] - 1);
         }
@@ -130,26 +130,26 @@ public class Lab7 implements PlugInFilter {
         int wartosc = 0;
         int klasa = 0;
         //for (int i = x - promien; i < x + promien; i++) {
-           // for (int j = y - promien; j < y + promien; j++) {
-                double sredniaJasnosc[] = wyznaczJasnosc(x, y);
-                double wariancja[] = wyznaczWariancje(x, y, sredniaJasnosc);
-                if (minmax) {       //true = maksymalna wariancja
-                    klasa = maxWariancja(wariancja);
-                } else {            // minimalna wariancja
-                    klasa = minWariancja(wariancja);
-                }
+        // for (int j = y - promien; j < y + promien; j++) {
+        double sredniaJasnosc[] = wyznaczJasnosc(x, y);
+        double wariancja[] = wyznaczWariancje(x, y, sredniaJasnosc);
+        if (minmax) {       //true = maksymalna wariancja
+            klasa = maxWariancja(wariancja);
+        } else {            // minimalna wariancja
+            klasa = minWariancja(wariancja);
+        }
 
 //                wartosc = zlozPiksel((int) sredniaJasnosc[3*klasa - 3], (int) sredniaJasnosc[3*klasa -2], (int) sredniaJasnosc[3*klasa- 1]);
-           // }
+        // }
         //}
-         return wybierzPikselDoZastapienia(x, y, klasa);
+        return wybierzPikselDoZastapienia(x, y, klasa);
 //        return wartosc;
     }
 
     /*Wybierasz subokno o najmniejszej lub największej wariancji, sortujesz wartości pikseli rosnąco, a R to numer piksela,
 którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
 
-    private int wybierzPikselDoZastapienia(int x, int y, int klasa){
+    private int wybierzPikselDoZastapienia(int x, int y, int klasa) {
 
         ArrayList<Integer> pikseleR = new ArrayList<Integer>();
         ArrayList<Integer> pikseleG = new ArrayList<Integer>();
@@ -158,8 +158,8 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
         for (int i = x - promien, xi = 0; i <= x + promien; i++, xi++) {
             for (int j = y - promien, yi = 0; j <= y + promien; j++, yi++) {
 
-                if(klasy[xi][yi] == klasa){
-                    int piksel = obraz2.getPixel(i,j);
+                if (klasy[xi][yi] == klasa) {
+                    int piksel = obraz2.getPixel(i, j);
                     pikseleR.add(getR(piksel));
                     pikseleG.add(getG(piksel));
                     pikseleB.add(getB(piksel));
@@ -167,17 +167,9 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
             }
         }
 
-        ///
-        /*ArrayList<Integer> zlozone = new ArrayList<Integer>();
-        for (int i = 0; i < pikseleR.size(); i++) {
-            zlozone.add(zlozPiksel(pikseleR.get(i), pikseleG.get(i), pikseleB.get(i)));
-        }
-        zlozone = sortuj(zlozone);*/
-        ///
-
-        pikseleR = sortuj(pikseleR);
-        pikseleG = sortuj(pikseleG);
-        pikseleB = sortuj(pikseleB);
+        Collections.sort(pikseleR, (liczba1, liczba2) -> liczba1.compareTo(liczba2));
+        Collections.sort(pikseleG, (liczba1, liczba2) -> liczba1.compareTo(liczba2));
+        Collections.sort(pikseleB, (liczba1, liczba2) -> liczba1.compareTo(liczba2));
 
         return zlozPiksel(pikseleR.get(parametrR[klasa] - 1), pikseleG.get(parametrR[klasa] - 1), pikseleB.get(parametrR[klasa] - 1));
 //        return zlozone.get(parametrR[klasa]);
@@ -281,14 +273,8 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
         return klasa;
     }
 
-    private ArrayList sortuj(ArrayList list) {
-        Collections.sort(list, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer liczba1, Integer liczba2) {
-                return liczba1.compareTo(liczba2);
-            }
-        });
-
+    private ArrayList sortuj(ArrayList<Integer> list) {
+        Collections.sort(list, (liczba1, liczba2) -> liczba1.compareTo(liczba2));
         return list;
     }
 

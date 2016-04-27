@@ -104,36 +104,28 @@ public class Filter_Plugin implements PlugInFilter {
         }
 
         for (Double gradient : gradienty) {
-            double wartosc =  ((0.5 * gradient) / sumaGradientow);
-            if (wartosc > 0) {
-                wagi.add(wartosc);
-            } else {
-                wagi.add(2.0);
-            }
+            double wartosc =  (0.5 * (gradient / sumaGradientow));
+            wagi.add(wartosc);
         }
 
-        /*int srodkowy = (wagi.size() / 2) + 1;
-        wagi.set(srodkowy, 0.5);*/
+        int srodkowy = wagi.size() / 2;
+        wagi.set(srodkowy, 0.5);
 
         return wagi;
     }
 
     private double gradientOdwrotny(int xi, int yi, int x, int y, int tryb) { // funkcja
 
-        if (x == xi && y == yi) {
-            return 2;
-        } else {
             int pixel = (obraz2.getPixel(xi, yi) >> tryb) & 0xff;
             int pixelCentralny = (obraz2.getPixel(x, y) >> tryb) & 0xff;
 
             double mianownik = Math.abs(pixel - pixelCentralny);
 
             if (mianownik == 0) {
-                mianownik++;
+               return 2.0;
             }
 
             return 1 / mianownik;
-        }
     }
 
     private void doDialog() {
