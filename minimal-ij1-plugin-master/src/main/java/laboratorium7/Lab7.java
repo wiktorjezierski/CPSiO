@@ -325,9 +325,9 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
         rozmiarSasiedztwa = (int) gd.getNextNumber();
         rzadFiltracji = gd.getNextNumber();
         minmax = gd.getNextBoolean();
-        /*if (!(rzadFiltracji <= 1 && rzadFiltracji > 0)) {
+        if (!(rzadFiltracji <= 1 && rzadFiltracji >= 0)) {
             throw new NumberFormatException("second value is not correct, must be <0,1>");
-        }*/
+        }
     }
 
     public static void main(String[] args) {
@@ -341,7 +341,7 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
         new ImageJ();
 
         // open the Clown sample
-        ImagePlus image = IJ.openImage("C:\\Users\\user\\Desktop\\lena.tif");
+        ImagePlus image = IJ.openImage("http://imagej.net/images/lena.jpg");
         image.show();
 
         // run the plugin
