@@ -8,6 +8,8 @@ import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
 
 import java.lang.reflect.Array;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.DoubleSummaryStatistics;
@@ -43,13 +45,17 @@ public class Lab8 implements PlugInFilter {
     }
 
     private void filter() {
+        DecimalFormat df = new DecimalFormat("#.#");
+        df.setRoundingMode(RoundingMode.DOWN);
         double prog = wyznaczProg();
+        prog = Double.parseDouble(df.format(prog).replace(",","."));
+//        double prog = 0.9;
         for (int x = 0; x < obraz.getWidth() - 1; x++) {
             for (int y = 0; y < obraz.getHeight() - 1; y++) {
 //                obraz.putPixel(x, y, 255);
                 int pixel = obraz.getPixel(x, y);
                 double pixelTmp = pixel / 255.0;
-                if(pixelTmp < prog){
+                if(pixelTmp > prog){
                     obraz.putPixel(x, y, COLOR_WHITE);
                 }
             }
