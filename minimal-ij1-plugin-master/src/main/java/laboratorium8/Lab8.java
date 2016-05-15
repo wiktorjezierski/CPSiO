@@ -45,24 +45,18 @@ public class Lab8 implements PlugInFilter {
     }
 
     private void filter() {
-        DecimalFormat df = new DecimalFormat("#.#");
-        df.setRoundingMode(RoundingMode.DOWN);
-        double prog = wyznaczProg();
-        prog = Double.parseDouble(df.format(prog).replace(",","."));
-//        double prog = 0.9;
+        int prog = wyznaczProg();
         for (int x = 0; x < obraz.getWidth() - 1; x++) {
             for (int y = 0; y < obraz.getHeight() - 1; y++) {
-//                obraz.putPixel(x, y, 255);
                 int pixel = obraz.getPixel(x, y);
-                double pixelTmp = pixel / 255.0;
-                if(pixelTmp > prog){
+                if(pixel > prog){
                     obraz.putPixel(x, y, COLOR_WHITE);
                 }
             }
         }
     }
 
-    private double wyznaczProg() {
+    private int wyznaczProg() {
         ArrayList<Double> wartosciFunkcjiJ = new ArrayList<Double>();
         ArrayList<Double> histogramZnormalizowany = normalizujHistogram();
 
@@ -79,8 +73,13 @@ public class Lab8 implements PlugInFilter {
             wartosciFunkcjiJ.add(wynik);
         }
 
-        Optional<Double> max = wartosciFunkcjiJ.stream().max((liczba1, liczba2) -> liczba1.compareTo(liczba2));
-        return max.get();
+        double max = wartosciFunkcjiJ.stream().max((liczba1, liczba2) -> liczba1.compareTo(liczba2)).get();
+
+        DecimalFormat df = new DecimalFormat("#.#");
+        df.setRoundingMode(RoundingMode.DOWN);
+        max = Double.parseDouble(df.format(max).replace(",","."));
+
+        return (int)(max * 255.0);
     }
 
     private ArrayList<Double> normalizujHistogram() {
