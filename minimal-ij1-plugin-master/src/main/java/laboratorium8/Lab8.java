@@ -24,7 +24,6 @@ public class Lab8 implements PlugInFilter {
 
     ImagePlus imp;
     ImageProcessor obraz;
-    ImageProcessor obraz2;
 
     double liczbaPikseli;
 
@@ -40,20 +39,82 @@ public class Lab8 implements PlugInFilter {
 
     private void prepareImage(ImageProcessor ip) {
         doDialog();
-        obraz = ip;
-        obraz2 = ip.duplicate();
     }
 
     private void filter() {
-        int prog = wyznaczProg();
+//        int prog = wyznaczProg();
+        int prog = wyznaczProgKopia();
         for (int x = 0; x < obraz.getWidth() - 1; x++) {
             for (int y = 0; y < obraz.getHeight() - 1; y++) {
                 int pixel = obraz.getPixel(x, y);
-                if(pixel > prog){
+                if (pixel > prog) {
                     obraz.putPixel(x, y, COLOR_WHITE);
                 }
             }
         }
+    }
+
+    private int wyznaczProgKopia() {
+        ArrayList<Double> wyniki = new ArrayList<Double>();
+        double p1 = 0.0, p2 = 0.0, m1 = 0.0, m2 = 0.0, sigma1 = 0.0, sigma2 = 0.0, J = 0.0;
+        int[] histogram = obraz.getHistogram();
+        int liczbaPikseli = obraz.getPixelCount();
+
+        for (int i = 1; i < 255; i++) {
+
+            for (int j = 0; j <= i; j++) {
+                p1 += ((double) histogram[j] / liczbaPikseli);
+            }
+
+            p2 = 1.0 - p1;
+
+            for (int j = 0; j <= i; j++) {
+                m1 += ((double) histogram[j] / liczbaPikseli) * j;
+            }
+            m1 = m1 / p1;
+
+            for (int j = i + 1; j < 256; j++) {
+                m2 += ((double) histogram[j] / liczbaPikseli) * j;
+            }
+            m2 = m2 / p2;
+
+            for (int j = 0; j <= i; j++) {
+                sigma1 +=  (((double) histogram[j] / liczbaPikseli) * Math.pow((double) j - m1, 2));
+            }
+            sigma1 = sigma1 / p1;
+
+            for (int j = i + 1; j < 256; j++) {
+                sigma2 += (Math.pow(j - m2, 2) * ((double) histogram[j] / liczbaPikseli));
+            }
+            sigma2 = sigma2 / p2;
+
+            double licznik = p1 * p2 * Math.pow(m1 - m2, 2);
+            double mianownik = (p1 * sigma1) + (p2 * sigma2);
+            J = (p1 * p2 * Math.pow(m1 - m2, 2)) / ((p1 * sigma1) + (p2 * sigma2));
+            wyniki.add(J);
+
+            p1 = 0.0;
+            p2 = 0.0;
+            m1 = 0.0;
+            m2 = 0.0;
+            sigma1 = 0.0;
+            sigma2 = 0.0;
+            J = 0.0;
+        }
+
+        return max(wyniki);
+    }
+
+    private int max(ArrayList<Double> wyniki) {
+        double max = Double.MIN_VALUE;
+
+        for (Double element : wyniki) {
+            if (element > max) {
+                max = element;
+            }
+        }
+
+        return (int) max;
     }
 
     private int wyznaczProg() {
@@ -66,29 +127,25 @@ public class Lab8 implements PlugInFilter {
             double m1 = m1(histogramZnormalizowany, p1, i);
             double m2 = m2(histogramZnormalizowany, p2, i);
             double sigma1 = sigma1(histogramZnormalizowany, p1, m1, i);
-            double sigma2 = sigma1(histogramZnormalizowany, p2, m2, i);
+            double sigma2 = sigma2(histogramZnormalizowany, p2, m2, i);
 
 
             double wynik = funkcjaJ(p1, p2, m1, m2, sigma1, sigma2);
             wartosciFunkcjiJ.add(wynik);
         }
 
-        double max = wartosciFunkcjiJ.stream().max((liczba1, liczba2) -> liczba1.compareTo(liczba2)).get();
+        wartosciFunkcjiJ.stream().sorted((liczba1, liczba2) -> liczba1.compareTo(liczba2));
 
-        DecimalFormat df = new DecimalFormat("#.#");
-        df.setRoundingMode(RoundingMode.DOWN);
-        max = Double.parseDouble(df.format(max).replace(",","."));
-
-        return (int)(max * 255.0);
+        return 15;
     }
 
     private ArrayList<Double> normalizujHistogram() {
         ArrayList<Double> histogramZnormalizowany = new ArrayList<Double>();
-        liczbaPikseli = obraz2.getHeight() * obraz2.getWidth();
-        int[] histogram = obraz2.getHistogram();
+        liczbaPikseli = obraz.getPixelCount();
+        int[] histogram = obraz.getHistogram();
 
         for (int i = 0; i < histogram.length; i++) {
-            double temp = histogram[i] / liczbaPikseli;
+            double temp = (double) histogram[i] / liczbaPikseli;
             histogramZnormalizowany.add(temp);
         }
         return histogramZnormalizowany;
@@ -137,8 +194,8 @@ public class Lab8 implements PlugInFilter {
     private double sigma1(ArrayList<Double> histogram, Double p1, double m1, int param) {
         Double suma = 0.0;
         for (int i = 0; i < param; i++) {
-
-            double temp = Math.pow(i - m1, 2);
+            double temp2 = i - m1;
+            double temp = Math.pow(temp2, 2);
             suma += temp * histogram.get(i);
         }
 
@@ -152,8 +209,8 @@ public class Lab8 implements PlugInFilter {
     private double sigma2(ArrayList<Double> histogram, Double p2, double m2, int param) {
         Double suma = 0.0;
         for (int i = param + 1; i < L; i++) {
-
-            double temp = Math.pow(i - m2, 2);
+            double temp2 = i - m2;
+            double temp = Math.pow(temp2, 2);
             suma += temp * histogram.get(i);
         }
 
