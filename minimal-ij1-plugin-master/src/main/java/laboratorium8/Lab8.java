@@ -66,20 +66,28 @@ public class Lab8 implements PlugInFilter {
             double m1 = m1(histogramZnormalizowany, p1, i);
             double m2 = m2(histogramZnormalizowany, p2, i);
             double sigma1 = sigma1(histogramZnormalizowany, p1, m1, i);
-            double sigma2 = sigma1(histogramZnormalizowany, p2, m2, i);
+            double sigma2 = sigma2(histogramZnormalizowany, p2, m2, i);
 
 
             double wynik = funkcjaJ(p1, p2, m1, m2, sigma1, sigma2);
             wartosciFunkcjiJ.add(wynik);
         }
 
-        double max = wartosciFunkcjiJ.stream().max((liczba1, liczba2) -> liczba1.compareTo(liczba2)).get();
+        return max(wartosciFunkcjiJ);
+    }
 
-        DecimalFormat df = new DecimalFormat("#.#");
-        df.setRoundingMode(RoundingMode.DOWN);
-        max = Double.parseDouble(df.format(max).replace(",","."));
+    private int max(ArrayList<Double> wyniki){
+        double max = Double.MIN_VALUE;
+        int T = 0;
 
-        return (int)(max * 255.0);
+        for (int i=0; i< wyniki.size();i++){
+            if (wyniki.get(i) > max){
+                max = wyniki.get(i);
+                T = i;
+            }
+        }
+
+        return T;
     }
 
     private ArrayList<Double> normalizujHistogram() {
