@@ -1,5 +1,8 @@
 package laboratorium6;
-
+/*
+* linie 60,61 zamiast stalych R,G wstawiamy 2,1 to zlamanie algorytmu bo bierzemy kolor zlozony z bitow dwoch innych kolorow
+* linie 114, 115 to ustawienie piksela srodkowego na 0,5; bez tego ustawienia jest znacznie wiekszy widoczny efekt rozmycia
+* */
 import java.util.ArrayList;
 
 import ij.IJ;

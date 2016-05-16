@@ -171,7 +171,14 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
         Collections.sort(pikseleG, (liczba1, liczba2) -> liczba1.compareTo(liczba2));
         Collections.sort(pikseleB, (liczba1, liczba2) -> liczba1.compareTo(liczba2));
 
-        return zlozPiksel(pikseleR.get(parametrR[klasa] - 1), pikseleG.get(parametrR[klasa] - 1), pikseleB.get(parametrR[klasa] - 1));
+        int wartosc;
+        if (parametrR[klasa] - 1 > 0){
+            wartosc = parametrR[klasa] - 1;
+        } else {
+            wartosc = 0;
+        }
+
+        return zlozPiksel(pikseleR.get(wartosc), pikseleG.get(wartosc), pikseleB.get(wartosc)); //tu bylo wszedzoe parametr[klasa] -1
 //        return zlozone.get(parametrR[klasa]);
     }
 
@@ -311,14 +318,14 @@ którego wybierzesz z tego posortowanego ciągu i wstawisz w środek okna.*/
     private void doDialog() {
         GenericDialog gd = new GenericDialog("Przeksztalcenie kontekstowe");
         gd.addNumericField("szerokosc sasiedztwa", 9, 0);
-        gd.addNumericField("Rząd filtracjinp.: 0.5", 0.5, 0);
+        gd.addNumericField("Rząd filtracjinp.: 0.5", 0, 0);
         gd.addCheckbox("maksymalna wariancja", true);
         gd.showDialog();
 
         rozmiarSasiedztwa = (int) gd.getNextNumber();
         rzadFiltracji = gd.getNextNumber();
         minmax = gd.getNextBoolean();
-        if (!(rzadFiltracji <= 1 && rzadFiltracji > 0)) {
+        if (!(rzadFiltracji <= 1 && rzadFiltracji >= 0)) {
             throw new NumberFormatException("second value is not correct, must be <0,1>");
         }
     }
