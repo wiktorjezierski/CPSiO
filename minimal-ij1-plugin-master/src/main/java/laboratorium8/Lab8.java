@@ -60,7 +60,7 @@ public class Lab8 implements PlugInFilter {
         ArrayList<Double> wartosciFunkcjiJ = new ArrayList<Double>();
         ArrayList<Double> histogramZnormalizowany = normalizujHistogram();
 
-        for (int i = 0; i < T; i++) {
+        for (int i = 1; i < T; i++) {
             double p1 = p1(histogramZnormalizowany, i);
             double p2 = p2(p1);
             double m1 = m1(histogramZnormalizowany, p1, i);
