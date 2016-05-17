@@ -107,14 +107,16 @@ public class Lab8 implements PlugInFilter {
 
     private int max(ArrayList<Double> wyniki) {
         double max = Double.MIN_VALUE;
+        int prog = 0;
 
-        for (Double element : wyniki) {
-            if (element > max) {
-                max = element;
+        for (int i=0; i< wyniki.size();i++) {
+            if (wyniki.get(i) > max) {
+                max = wyniki.get(i);
+                prog = i;
             }
         }
 
-        return (int) max;
+        return prog;
     }
 
     private int wyznaczProg() {
