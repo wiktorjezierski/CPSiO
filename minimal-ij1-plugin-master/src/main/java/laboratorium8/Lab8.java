@@ -21,6 +21,7 @@ public class Lab8 implements PlugInFilter {
     private final int L = 256;
     private final int T = 255;
     private final int COLOR_WHITE = 255;
+    private final int COLOR_BLACK = 0;
 
     ImagePlus imp;
     ImageProcessor obraz;
@@ -51,6 +52,8 @@ public class Lab8 implements PlugInFilter {
                 int pixel = obraz.getPixel(x, y);
                 if(pixel > prog){
                     obraz.putPixel(x, y, COLOR_WHITE);
+                } else {
+                    obraz.putPixel(x, y, COLOR_BLACK);
                 }
             }
         }
