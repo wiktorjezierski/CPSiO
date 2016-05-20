@@ -37,7 +37,7 @@ public class Lab9 implements PlugInFilter {
     }
 
     private void prepareImage(ImageProcessor ip) {
-        doDialog();
+//        doDialog();
         obraz = ip;
         obraz2 = ip.duplicate();
     }
@@ -73,6 +73,7 @@ public class Lab9 implements PlugInFilter {
             ++i;
         }
 
+        obraz.setPixels(obraz2.getPixels());
 
     }
 

@@ -40,7 +40,7 @@ public class Lab8 implements PlugInFilter {
     }
 
     private void prepareImage(ImageProcessor ip) {
-        doDialog();
+//        doDialog();
         obraz = ip;
         obraz2 = ip.duplicate();
     }
