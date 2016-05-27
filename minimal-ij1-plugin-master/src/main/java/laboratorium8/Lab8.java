@@ -28,6 +28,7 @@ public class Lab8 implements PlugInFilter {
     ImageProcessor obraz2;
 
     double liczbaPikseli;
+    int prog;
 
     public int setup(String arg, ImagePlus imp) {
         this.imp = imp;
@@ -39,6 +40,16 @@ public class Lab8 implements PlugInFilter {
         filter();
     }
 
+    public ImageProcessor runOtsu(ImageProcessor ip) {
+        prepareImage(ip);
+        filter();
+        return obraz;
+    }
+
+    public int getProg(){
+        return prog;
+    }
+
     private void prepareImage(ImageProcessor ip) {
 //        doDialog();
         obraz = ip;
@@ -46,7 +57,7 @@ public class Lab8 implements PlugInFilter {
     }
 
     private void filter() {
-        int prog = wyznaczProg();
+        prog = wyznaczProg();
         for (int x = 0; x < obraz.getWidth() - 1; x++) {
             for (int y = 0; y < obraz.getHeight() - 1; y++) {
                 int pixel = obraz.getPixel(x, y);
