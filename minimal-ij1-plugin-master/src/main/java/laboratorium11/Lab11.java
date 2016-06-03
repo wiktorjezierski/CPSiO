@@ -3,6 +3,7 @@ package laboratorium11;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
+import ij.measure.Measurements;
 import ij.measure.ResultsTable;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.filter.ParticleAnalyzer;
@@ -13,9 +14,10 @@ import laboratorium8.Lab8;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 
 
-public class Lab11 implements PlugInFilter {
+public class Lab11 implements PlugInFilter, Measurements {
 
     private final static String SOURCE_PATH = "E:\\studia\\obrazy\\L\\lab11\\";
     private final static String SUFFIX = ".tif";
@@ -27,6 +29,7 @@ public class Lab11 implements PlugInFilter {
     ImageProcessor obraz2;
 
     private ParticleAnalyzer analyzer;
+    private ParticleAnalyzer analyzer2;
     private File file;
     private FileWriter fileWriter;
     private BufferedWriter bufferedWriter;
@@ -49,18 +52,21 @@ public class Lab11 implements PlugInFilter {
         obraz2 = ip.duplicate();
 
         int options = ParticleAnalyzer.SHOW_PROGRESS;
-        int measurements = 32;
         int minSize = 1;
         int maxSize = Integer.MAX_VALUE;
         rt = new ResultsTable();
-        analyzer = new ParticleAnalyzer(options, measurements, rt, minSize, maxSize);
+        analyzer = new ParticleAnalyzer(options, CIRCULARITY, rt, minSize, maxSize);
+        analyzer2 = new ParticleAnalyzer(options, AREA, rt, minSize, maxSize);
 
         try {
             file = new File(RESULT_FILE);
             fileWriter = new FileWriter(file.getAbsoluteFile());
             bufferedWriter = new BufferedWriter(fileWriter);
 
-            if (!file.exists()) {
+            if (file.exists()) {
+                file.delete();
+                file.createNewFile();
+            } else {
                 file.createNewFile();
             }
         } catch(Exception e){
@@ -72,21 +78,41 @@ public class Lab11 implements PlugInFilter {
         Lab8 lab8 = new Lab8();
 
         for (int i = 0; i < 60; i++) {
-            ImagePlus image = IJ.openImage(SOURCE_PATH + getName(i) + SUFFIX);
+
+            String name = getName(i);
+            ImagePlus image = IJ.openImage(SOURCE_PATH + name + SUFFIX);
             ImageProcessor imageOTSU = lab8.runOtsu(image.getProcessor());
-            saveToFile(imageOTSU, getName(i));
+            saveToFile(imageOTSU, name);
             obraz.setPixels(imageOTSU.getPixels());
-            createStatistic(imageOTSU);
+            createStatistic(imageOTSU, name);
+        }
+
+
+        try {
+            bufferedWriter.close();
+        } catch (Exception e){
+
         }
     }
 
-    private void createStatistic(ImageProcessor otsu) {
+    private void createStatistic(ImageProcessor otsu, String name) {
         ImagePlus imagePlus = new ImagePlus();
         otsu.setThreshold(255, 255, ImageProcessor.NO_LUT_UPDATE);
         imagePlus.setProcessor(otsu);
         analyzer.analyze(imagePlus);
+        analyzer2.analyze(imagePlus);
         float[] area = rt.getColumn(ResultsTable.AREA);
         float[] circle = rt.getColumn(ResultsTable.CIRCULARITY);
+
+        try{
+            bufferedWriter.write("Plik " + name + ": \n");
+            for (int i = 0; i < area.length; i++) {
+                bufferedWriter.write("Pole = " + area[i] + " Obwód = " + circle[i] + "\n");
+            }
+            bufferedWriter.write("\n");
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     private String getName(int i) {
