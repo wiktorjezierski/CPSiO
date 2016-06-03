@@ -26,10 +26,11 @@ public class Lab11 implements PlugInFilter {
     ImageProcessor obraz;
     ImageProcessor obraz2;
 
-    private MyParticleAnalyzer analyzer;
+    private ParticleAnalyzer analyzer;
     private File file;
     private FileWriter fileWriter;
     private BufferedWriter bufferedWriter;
+    private ResultsTable rt;
 
     @Override
     public int setup(String s, ImagePlus imagePlus) {
@@ -46,7 +47,13 @@ public class Lab11 implements PlugInFilter {
     private void prepareImage(ImageProcessor ip) {
         obraz = ip;
         obraz2 = ip.duplicate();
-        analyzer = new MyParticleAnalyzer();
+
+        int options = ParticleAnalyzer.SHOW_PROGRESS;
+        int measurements = 32;
+        int minSize = 1;
+        int maxSize = Integer.MAX_VALUE;
+        rt = new ResultsTable();
+        analyzer = new ParticleAnalyzer(options, measurements, rt, minSize, maxSize);
 
         try {
             file = new File(RESULT_FILE);
@@ -75,9 +82,11 @@ public class Lab11 implements PlugInFilter {
 
     private void createStatistic(ImageProcessor otsu) {
         ImagePlus imagePlus = new ImagePlus();
+        otsu.setThreshold(255, 255, ImageProcessor.NO_LUT_UPDATE);
         imagePlus.setProcessor(otsu);
-        boolean analyze = analyzer.analyze(imagePlus);
-        ResultsTable resultsTable = analyzer.getResultsTable();
+        analyzer.analyze(imagePlus);
+        float[] area = rt.getColumn(ResultsTable.AREA);
+        float[] circle = rt.getColumn(ResultsTable.CIRCULARITY);
     }
 
     private String getName(int i) {
