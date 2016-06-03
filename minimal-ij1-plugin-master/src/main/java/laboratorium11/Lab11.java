@@ -5,7 +5,6 @@ import ij.ImageJ;
 import ij.ImagePlus;
 import ij.measure.Measurements;
 import ij.measure.ResultsTable;
-import ij.plugin.filter.Analyzer;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
@@ -84,7 +83,7 @@ public class Lab11 implements PlugInFilter, Measurements {
             ImageProcessor imageOTSU = lab8.runOtsu(image.getProcessor());
             saveToFile(imageOTSU, name);
             obraz.setPixels(imageOTSU.getPixels());
-            createStatistic(imageOTSU, name);
+            createStatisticAndSaveToFile(imageOTSU, name);
         }
 
 
@@ -95,7 +94,7 @@ public class Lab11 implements PlugInFilter, Measurements {
         }
     }
 
-    private void createStatistic(ImageProcessor otsu, String name) {
+    private void createStatisticAndSaveToFile(ImageProcessor otsu, String name) {
         ImagePlus imagePlus = new ImagePlus();
         otsu.setThreshold(255, 255, ImageProcessor.NO_LUT_UPDATE);
         imagePlus.setProcessor(otsu);
