@@ -58,13 +58,13 @@ public class Lab8 implements PlugInFilter {
 
     private void filter() {
         prog = wyznaczProg();
-        for (int x = 0; x < obraz.getWidth() - 1; x++) {
-            for (int y = 0; y < obraz.getHeight() - 1; y++) {
+        for (int x = 0; x < obraz.getWidth(); x++) {
+            for (int y = 0; y < obraz.getHeight(); y++) {
                 int pixel = obraz.getPixel(x, y);
                 if(pixel > prog){
-                    obraz.putPixel(x, y, COLOR_WHITE);
-                } else {
                     obraz.putPixel(x, y, COLOR_BLACK);
+                } else {
+                    obraz.putPixel(x, y, COLOR_WHITE);
                 }
             }
         }

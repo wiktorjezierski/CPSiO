@@ -47,7 +47,8 @@ public class StartWykrywanieKrawedzi {
 
         // open the image
 //        ImagePlus image = IJ.openImage("D:\\imageJ\\minimal-ij1-plugin-master\\src\\main\\java\\laboratorium8\\leafMonochrom.tif");
-        ImagePlus image = IJ.openImage("D:\\imageJ\\minimal-ij1-plugin-master\\src\\main\\java\\laboratorium10\\leafH.tif");
+//        ImagePlus image = IJ.openImage("D:\\imageJ\\minimal-ij1-plugin-master\\src\\main\\java\\laboratorium10\\leafH.tif");
+        ImagePlus image = IJ.openImage("E:\\studia\\obrazy\\L\\lab11\\000001.bmp");
         image.show();
 
         // run the plugin
