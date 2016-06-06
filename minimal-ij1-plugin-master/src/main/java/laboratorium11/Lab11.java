@@ -23,8 +23,8 @@ public class Lab11 implements PlugInFilter, Measurements {
     private final static String DESTINATION_PATH = "E:\\studia\\obrazy\\L\\test\\";
     private final static String RESULT_FILE = "E:\\studia\\obrazy\\L\\lab11\\wynik.txt";
 
-    ImagePlus imp;
-    ImageProcessor obraz;
+    private ImagePlus imp;
+    private ImageProcessor obraz;
 
     private ParticleAnalyzer analyzer;
     private ParticleAnalyzer analyzer2;
@@ -68,7 +68,6 @@ public class Lab11 implements PlugInFilter, Measurements {
                 file.createNewFile();
             }
         } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -87,7 +86,6 @@ public class Lab11 implements PlugInFilter, Measurements {
         try {
             bufferedWriter.close();
         } catch (Exception e) {
-
         }
     }
 
@@ -138,7 +136,6 @@ public class Lab11 implements PlugInFilter, Measurements {
             }
             bufferedWriter.write("\n");
         } catch (Exception e) {
-//            e.printStackTrace();
         }
 
         rt.reset();
