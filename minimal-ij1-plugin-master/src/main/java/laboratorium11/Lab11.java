@@ -25,15 +25,13 @@ public class Lab11 implements PlugInFilter, Measurements {
 
     ImagePlus imp;
     ImageProcessor obraz;
-    ImageProcessor obraz2;
 
     private ParticleAnalyzer analyzer;
     private ParticleAnalyzer analyzer2;
-    private ParticleAnalyzer analyzer3;
     private File file;
     private FileWriter fileWriter;
     private BufferedWriter bufferedWriter;
-    private ResultsTable rt, rt2, rt3;
+    private ResultsTable rt, rt2;
 
     @Override
     public int setup(String s, ImagePlus imagePlus) {
@@ -49,18 +47,14 @@ public class Lab11 implements PlugInFilter, Measurements {
 
     private void prepareImage(ImageProcessor ip) {
         obraz = ip;
-        obraz2 = ip.duplicate();
 
         int options = 1023;
-//        int options = ParticleAnalyzer.SHOW_NONE;
         int minSize = 1;
         int maxSize = Integer.MAX_VALUE;
         rt = new ResultsTable();
         rt2 = new ResultsTable();
-        rt3 = new ResultsTable();
         analyzer = new ParticleAnalyzer(options, CIRCULARITY, rt, minSize, maxSize);
         analyzer2 = new ParticleAnalyzer(options, 0, rt2, minSize, maxSize);
-        analyzer3 = new ParticleAnalyzer(options, 0, rt3, minSize, maxSize);
 
         try {
             file = new File(RESULT_FILE);
@@ -90,8 +84,6 @@ public class Lab11 implements PlugInFilter, Measurements {
             obraz.setPixels(imageOTSU.getPixels());
             createStatisticAndSaveToFile(imageOTSU, name);
         }
-
-
         try {
             bufferedWriter.close();
         } catch (Exception e) {
@@ -105,10 +97,9 @@ public class Lab11 implements PlugInFilter, Measurements {
         imagePlus.setProcessor(otsu);
         analyzer.analyze(imagePlus);
         analyzer2.analyze(imagePlus);
-        analyzer3.analyze(imagePlus);
         float[] area = rt2.getColumn(ResultsTable.AREA);
         float[] podobienstwoDoKola = rt.getColumn(ResultsTable.CIRCULARITY);
-        float[] obwod = rt3.getColumn(ResultsTable.PERIMETER);
+        float[] obwod = rt2.getColumn(ResultsTable.PERIMETER);
 
         //// test
  /*       for (int i = 0; i < 2000; i++) {
@@ -144,7 +135,6 @@ public class Lab11 implements PlugInFilter, Measurements {
             bufferedWriter.write("Plik " + name + ": \n");
             for (int i = 0; i < area.length; i++) {
                 bufferedWriter.write("Pole = " + area[i] + " podobienstwo Do Kola = " + podobienstwoDoKola[i] + " obwod " + obwod[i] + "\n");
-//                bufferedWriter.write("Pole = " + area[i] + " obwod " + obwod[i] + "\n");
             }
             bufferedWriter.write("\n");
         } catch (Exception e) {
@@ -153,8 +143,6 @@ public class Lab11 implements PlugInFilter, Measurements {
 
         rt.reset();
         rt2.reset();
-        rt3.reset();
-        ;
     }
 
     private String getName(int i) {
