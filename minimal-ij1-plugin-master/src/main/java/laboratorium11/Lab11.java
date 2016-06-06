@@ -51,15 +51,16 @@ public class Lab11 implements PlugInFilter, Measurements {
         obraz = ip;
         obraz2 = ip.duplicate();
 
-        int options = ParticleAnalyzer.SHOW_PROGRESS;
+        int options = 1023;
+//        int options = ParticleAnalyzer.SHOW_NONE;
         int minSize = 1;
         int maxSize = Integer.MAX_VALUE;
         rt = new ResultsTable();
         rt2 = new ResultsTable();
         rt3 = new ResultsTable();
         analyzer = new ParticleAnalyzer(options, CIRCULARITY, rt, minSize, maxSize);
-        analyzer2 = new ParticleAnalyzer(options, AREA, rt2, minSize, maxSize);
-        analyzer3 = new ParticleAnalyzer(options, PERIMETER, rt3, minSize, maxSize);
+        analyzer2 = new ParticleAnalyzer(options, 0, rt2, minSize, maxSize);
+        analyzer3 = new ParticleAnalyzer(options, 0, rt3, minSize, maxSize);
 
         try {
             file = new File(RESULT_FILE);
@@ -81,10 +82,10 @@ public class Lab11 implements PlugInFilter, Measurements {
         Lab8 lab8 = new Lab8();
 
         for (int i = 0; i < 60; i++) {
-
             String name = getName(i);
             ImagePlus image = IJ.openImage(SOURCE_PATH + name + SUFFIX);
             ImageProcessor imageOTSU = lab8.runOtsu(image.getProcessor());
+            imageOTSU.invert();
             saveToFile(imageOTSU, name);
             obraz.setPixels(imageOTSU.getPixels());
             createStatisticAndSaveToFile(imageOTSU, name);
@@ -109,15 +110,51 @@ public class Lab11 implements PlugInFilter, Measurements {
         float[] podobienstwoDoKola = rt.getColumn(ResultsTable.CIRCULARITY);
         float[] obwod = rt3.getColumn(ResultsTable.PERIMETER);
 
+        //// test
+ /*       for (int i = 0; i < 2000; i++) {
+            ResultsTable resultsTableX = new ResultsTable();
+            ParticleAnalyzer analyzerX = new ParticleAnalyzer(i, 0, resultsTableX, 1, Integer.MAX_VALUE);
+            analyzerX.analyze(imagePlus);
+            float[] column = resultsTableX.getColumn(ResultsTable.AREA);
+            int [] wzorzec = {171, 181, 265, 261, 402, 223, 164, 121, 161, 1, 94, 259, 4, 189, 1};
+
+            if (column != null) {
+                if (column.length == 15) {
+                    boolean check = true;
+                    for (int j = 0; j < wzorzec.length; j++) {
+                        if(wzorzec[j] != column[j]){
+                            check = false;
+                            break;
+                        }
+                    }
+                    if (check) {
+                        System.out.println("A" + i);
+                    }
+                    check = true;
+                }
+            }
+
+            if (i % 50 == 0) {
+                System.out.println("wydruk testowy " + i);
+            }
+        }*/
+        //// test
+
         try {
             bufferedWriter.write("Plik " + name + ": \n");
             for (int i = 0; i < area.length; i++) {
                 bufferedWriter.write("Pole = " + area[i] + " podobienstwo Do Kola = " + podobienstwoDoKola[i] + " obwod " + obwod[i] + "\n");
+//                bufferedWriter.write("Pole = " + area[i] + " obwod " + obwod[i] + "\n");
             }
             bufferedWriter.write("\n");
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+//            e.printStackTrace();
         }
+
+        rt.reset();
+        rt2.reset();
+        rt3.reset();
+        ;
     }
 
     private String getName(int i) {
