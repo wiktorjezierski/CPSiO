@@ -27,11 +27,10 @@ public class Lab11 implements PlugInFilter, Measurements {
     private ImageProcessor obraz;
 
     private ParticleAnalyzer analyzer;
-    private ParticleAnalyzer analyzer2;
     private File file;
     private FileWriter fileWriter;
     private BufferedWriter bufferedWriter;
-    private ResultsTable rt, rt2;
+    private ResultsTable rt;
 
     @Override
     public int setup(String s, ImagePlus imagePlus) {
@@ -48,13 +47,8 @@ public class Lab11 implements PlugInFilter, Measurements {
     private void prepareImage(ImageProcessor ip) {
         obraz = ip;
 
-        int options = 1023;
-        int minSize = 1;
-        int maxSize = Integer.MAX_VALUE;
         rt = new ResultsTable();
-        rt2 = new ResultsTable();
-        analyzer = new ParticleAnalyzer(options, CIRCULARITY, rt, minSize, maxSize);
-        analyzer2 = new ParticleAnalyzer(options, 0, rt2, minSize, maxSize);
+        analyzer = new ParticleAnalyzer(ParticleAnalyzer.SHOW_NONE, AREA | CIRCULARITY | PERIMETER, rt, 1, Integer.MAX_VALUE);
 
         try {
             file = new File(RESULT_FILE);
@@ -94,40 +88,9 @@ public class Lab11 implements PlugInFilter, Measurements {
         otsu.setThreshold(255, 255, ImageProcessor.NO_LUT_UPDATE);
         imagePlus.setProcessor(otsu);
         analyzer.analyze(imagePlus);
-        analyzer2.analyze(imagePlus);
-        float[] area = rt2.getColumn(ResultsTable.AREA);
+        float[] area = rt.getColumn(ResultsTable.AREA);
         float[] podobienstwoDoKola = rt.getColumn(ResultsTable.CIRCULARITY);
-        float[] obwod = rt2.getColumn(ResultsTable.PERIMETER);
-
-        //// test
- /*       for (int i = 0; i < 2000; i++) {
-            ResultsTable resultsTableX = new ResultsTable();
-            ParticleAnalyzer analyzerX = new ParticleAnalyzer(i, 0, resultsTableX, 1, Integer.MAX_VALUE);
-            analyzerX.analyze(imagePlus);
-            float[] column = resultsTableX.getColumn(ResultsTable.AREA);
-            int [] wzorzec = {171, 181, 265, 261, 402, 223, 164, 121, 161, 1, 94, 259, 4, 189, 1};
-
-            if (column != null) {
-                if (column.length == 15) {
-                    boolean check = true;
-                    for (int j = 0; j < wzorzec.length; j++) {
-                        if(wzorzec[j] != column[j]){
-                            check = false;
-                            break;
-                        }
-                    }
-                    if (check) {
-                        System.out.println("A" + i);
-                    }
-                    check = true;
-                }
-            }
-
-            if (i % 50 == 0) {
-                System.out.println("wydruk testowy " + i);
-            }
-        }*/
-        //// test
+        float[] obwod = rt.getColumn(ResultsTable.PERIMETER);
 
         try {
             bufferedWriter.write("Plik " + name + ": \n");
@@ -139,7 +102,6 @@ public class Lab11 implements PlugInFilter, Measurements {
         }
 
         rt.reset();
-        rt2.reset();
     }
 
     private String getName(int i) {
